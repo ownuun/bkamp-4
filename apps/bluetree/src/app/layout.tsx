@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import './globals.css';
-
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+import Header from '@/components/Header';
 
 export const metadata: Metadata = {
   title: 'Bluetree Foundation',
@@ -12,7 +10,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
-      <body className={`${inter.variable} font-sans`}>{children}</body>
+      <body>
+        <Header />
+        <main className="container py-8">{children}</main>
+      </body>
     </html>
   );
 }

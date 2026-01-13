@@ -1,14 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Schoolbell&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-body { @apply bg-blue-50 min-h-screen; }
-
-.nb-card {
-  @apply border-4 border-black bg-white rounded-lg shadow-nb
-         transition-all duration-200 hover:shadow-nb-hover hover:-translate-y-1;
+body {
+  @apply bg-warm-50 min-h-screen font-hand;
+  font-family: 'Schoolbell', cursive;
 }
-.nb-button {
-  @apply border-4 border-black font-bold py-2 px-4 rounded-lg shadow-nb
-         transition-all duration-150 active:shadow-none active:translate-x-1 active:translate-y-1;
+
+/* hand-drawn 스타일 기본 설정 */
+.container {
+  @apply max-w-4xl mx-auto px-4;
 }

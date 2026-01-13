@@ -4,13 +4,18 @@ const config: Config = {
   content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
   theme: {
     extend: {
-      colors: {
-        'nb-blue': '#93c5fd',
-        'nb-blue-dark': '#3b82f6',
+      fontFamily: {
+        hand: ['Schoolbell', 'cursive'],
       },
-      boxShadow: {
-        'nb': '4px 4px 0px 0px rgba(0,0,0,1)',
-        'nb-hover': '6px 6px 0px 0px rgba(0,0,0,1)',
+      colors: {
+        primary: '#3b82f6',
+        'primary-light': '#93c5fd',
+        'primary-dark': '#1e3a5f',
+        warm: {
+          50: '#fef7f0',
+          100: '#fdeee0',
+          200: '#fbd9bf',
+        },
       },
     },
   },

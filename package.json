@@ -1,0 +1,24 @@
+{
+  "name": "bkamp-services",
+  "private": true,
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "dev:portal": "turbo dev --filter=portal",
+    "dev:marathon": "turbo dev --filter=marathon",
+    "dev:flipbook": "turbo dev --filter=flipbook",
+    "dev:jansori": "turbo dev --filter=jansori",
+    "dev:jobhunt": "turbo dev --filter=jobhunt",
+    "dev:bluetree": "turbo dev --filter=bluetree",
+    "dev:founders": "turbo dev --filter=founders",
+    "dev:webtoon": "turbo dev --filter=webtoon"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.0"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=18"
+  }
+}

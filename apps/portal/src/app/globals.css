@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-amber-50 min-h-screen;
+  }
+}
+
+@layer components {
+  /* Neo-Brutalism 카드 스타일 */
+  .nb-card {
+    @apply border-4 border-black bg-white rounded-lg shadow-nb
+           transition-all duration-200 hover:shadow-nb-hover hover:-translate-y-1;
+  }
+
+  /* Neo-Brutalism 버튼 스타일 */
+  .nb-button {
+    @apply border-4 border-black font-bold py-2 px-4 rounded-lg shadow-nb
+           transition-all duration-150 active:shadow-none active:translate-x-1 active:translate-y-1;
+  }
+
+  /* Neo-Brutalism 입력 필드 */
+  .nb-input {
+    @apply border-4 border-black rounded-lg px-4 py-2 focus:outline-none focus:ring-0
+           focus:shadow-nb-sm transition-shadow;
+  }
+}

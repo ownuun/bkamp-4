@@ -1,7 +1,12 @@
--- Marathon Alert Seed Data
--- 2026년 주요 마라톤 대회 데이터
+-- =====================================================
+-- BKAMP 통합 시드 데이터
+-- =====================================================
 
-INSERT INTO marathons (name, name_en, slug, date, registration_opens_at, registration_closes_at, location, distance_options, official_url, registration_url, is_featured, description) VALUES
+-- =====================================================
+-- MARATHON: 2026년 주요 마라톤 대회
+-- =====================================================
+
+INSERT INTO marathon_events (name, name_en, slug, date, registration_opens_at, registration_closes_at, location, distance_options, official_url, registration_url, is_featured, description) VALUES
 
 -- 서울마라톤 (동아마라톤)
 (
@@ -162,3 +167,70 @@ INSERT INTO marathons (name, name_en, slug, date, registration_opens_at, registr
   false,
   '탄금호의 아름다운 풍경과 함께하는 마라톤.'
 );
+
+-- =====================================================
+-- FOUNDERS: 창업가 페르소나
+-- =====================================================
+
+INSERT INTO founders_personas (id, name, title, philosophy, color, system_prompt) VALUES
+
+('elon', '일론 머스크 스타일 멘토', 'Tesla & SpaceX 창업자에서 영감',
+'불가능해 보이는 목표를 향해 끊임없이 도전하고, 첫 원칙(First Principles)으로 사고합니다.',
+'#1DA1F2',
+'당신은 일론 머스크의 사고방식과 철학에서 영감을 받은 AI 멘토입니다. 첫 원칙 사고(First Principles Thinking)를 강조하고, 대담한 목표 설정, 빠른 실행, 실패를 통한 학습을 중시합니다. 사용자의 아이디어에 대해 근본적인 질문을 던지고, 기존의 가정에 도전하도록 유도하세요. 응답은 직설적이고 간결하게, 때로는 도발적으로 하세요. 한국어로 응답하세요.'),
+
+('steve', '스티브 잡스 스타일 멘토', 'Apple 공동창업자에서 영감',
+'단순함의 극치를 추구하고, 기술과 인문학의 교차점에서 혁신을 만듭니다.',
+'#A3AAAE',
+'당신은 스티브 잡스의 철학과 미학에서 영감을 받은 AI 멘토입니다. 제품의 단순함과 우아함, 사용자 경험의 완벽함을 강조합니다. "좋은 것"이 아닌 "최고"를 추구하도록 독려하세요. 디자인과 기능의 조화, 그리고 "왜"에 대한 깊은 이해를 중시합니다. 열정적이면서도 까다롭게 피드백하세요. 한국어로 응답하세요.'),
+
+('jeff', '제프 베조스 스타일 멘토', 'Amazon 창업자에서 영감',
+'고객에 대한 집착, 장기적 사고, Day 1 정신으로 끊임없이 혁신합니다.',
+'#FF9900',
+'당신은 제프 베조스의 경영 철학에서 영감을 받은 AI 멘토입니다. 고객 집착(Customer Obsession), 장기적 사고, 실험과 실패의 중요성을 강조합니다. "Day 1" 정신을 유지하고, 역행 작업(Working Backwards)으로 고객의 필요에서 시작하도록 안내하세요. 데이터 기반 의사결정과 운영 탁월성을 중시합니다. 한국어로 응답하세요.'),
+
+('bill', '빌 게이츠 스타일 멘토', 'Microsoft 공동창업자에서 영감',
+'기술로 세상을 바꾸고, 지식과 학습에 끊임없이 투자합니다.',
+'#00A4EF',
+'당신은 빌 게이츠의 사고방식에서 영감을 받은 AI 멘토입니다. 기술의 민주화, 지속적인 학습, 복잡한 문제의 체계적 분석을 강조합니다. 깊은 독서와 전문가 의견 청취의 중요성을 말하고, 큰 문제를 작은 단위로 나누어 해결하도록 안내하세요. 분석적이면서도 실용적인 조언을 제공합니다. 한국어로 응답하세요.'),
+
+('mark', '마크 저커버그 스타일 멘토', 'Meta 창업자에서 영감',
+'빠르게 움직이고, 대담한 미션으로 세상을 연결합니다.',
+'#1877F2',
+'당신은 마크 저커버그의 접근 방식에서 영감을 받은 AI 멘토입니다. "Move Fast and Break Things"의 정신, 대담한 미션 설정, 그리고 빠른 반복(iteration)을 강조합니다. 완벽보다 빠른 출시와 피드백을, 작은 시작에서 큰 비전으로의 성장을 독려하세요. 젊고 에너지 넘치는 톤으로, 한국어로 응답하세요.');
+
+-- =====================================================
+-- FOUNDERS: 명언
+-- =====================================================
+
+INSERT INTO founders_quotes (persona_id, content, source) VALUES
+
+-- 일론 머스크
+('elon', '실패는 여기서 선택지 중 하나입니다. 만약 실패하지 않는다면, 충분히 혁신하지 않는 것입니다.', 'SpaceX Interview'),
+('elon', '첫 번째 단계는 무언가가 가능하다는 것을 확립하는 것입니다. 그러면 확률이 발생합니다.', 'TED Talk'),
+('elon', '어떤 것이든 충분히 중요하다면, 성공 확률이 낮더라도 해야 합니다.', 'Interview'),
+('elon', '끈기는 매우 중요합니다. 포기해야 할 때가 아니라면 포기하지 마세요.', 'USC Commencement'),
+
+-- 스티브 잡스
+('steve', '단순함이 궁극의 정교함이다.', 'Apple Marketing'),
+('steve', '점들을 미리 연결할 수는 없습니다. 뒤를 돌아봐야만 연결할 수 있습니다.', 'Stanford Commencement'),
+('steve', '디자인은 어떻게 보이는가가 아닙니다. 어떻게 작동하는가입니다.', 'New York Times Interview'),
+('steve', '혁신은 1000가지에 아니오라고 말하는 것입니다.', 'Apple WWDC'),
+
+-- 제프 베조스
+('jeff', '고객 집착으로 시작하고 거꾸로 일하세요.', 'Amazon Leadership Principles'),
+('jeff', '장기적으로 생각하면 고객과 주주의 이익은 일치합니다.', 'Shareholder Letter'),
+('jeff', '매일이 Day 1입니다. Day 2는 정체이고, 그 다음은 죽음입니다.', 'Annual Letter'),
+('jeff', '실험하지 않으면 발명할 수 없습니다.', 'Re:Invent Keynote'),
+
+-- 빌 게이츠
+('bill', '성공은 형편없는 선생님입니다. 똑똑한 사람들이 절대 질 수 없다고 생각하게 만듭니다.', 'The Road Ahead'),
+('bill', '우리는 항상 앞으로 2년의 변화를 과대평가하고 10년의 변화를 과소평가합니다.', 'The Road Ahead'),
+('bill', '불만족한 고객은 가장 큰 배움의 원천입니다.', 'Business @ the Speed of Thought'),
+('bill', '기술은 도구일 뿐입니다. 아이들이 함께 일하고 동기부여를 받는 것은 선생님이 가장 중요합니다.', 'Gates Foundation'),
+
+-- 마크 저커버그
+('mark', '가장 큰 리스크는 리스크를 감수하지 않는 것입니다.', 'Y Combinator Interview'),
+('mark', '빠르게 움직이고 깨뜨려라. 무언가를 깨뜨리지 않는다면 충분히 빠르게 움직이지 않는 것입니다.', 'Facebook Internal'),
+('mark', '완벽보다 완료가 낫습니다.', 'Facebook HQ'),
+('mark', '사람들이 생각하는 것보다 한 사람이 만들 수 있는 영향력은 훨씬 큽니다.', 'Harvard Commencement');

@@ -5,12 +5,21 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        'nb-cyan': '#67e8f9',
-        'nb-cyan-dark': '#0ea5e9',
+        primary: {
+          50: '#eff6ff',
+          100: '#dbeafe',
+          200: '#bfdbfe',
+          300: '#93c5fd',
+          400: '#60a5fa',
+          500: '#3b82f6',
+          600: '#2563eb',
+          700: '#1d4ed8',
+          800: '#1e40af',
+          900: '#1e3a8a',
+        },
       },
-      boxShadow: {
-        'nb': '4px 4px 0px 0px rgba(0,0,0,1)',
-        'nb-hover': '6px 6px 0px 0px rgba(0,0,0,1)',
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
       },
     },
   },

@@ -5,13 +5,13 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
-  title: 'Freelancer Job Alarm',
-  description: '이력서 스캔, 적합도 분석, 빠른 지원',
+  title: 'JobHunt - AI-Powered Job Matching for Freelancers',
+  description: 'Upload your resume, get matched with perfect jobs, and apply with one click.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ko">
+    <html suppressHydrationWarning>
       <body className={`${inter.variable} font-sans`}>{children}</body>
     </html>
   );

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useOrder } from '@/context/OrderContext';
+import { createOrder } from '@/lib/actions/order';
 
 export default function ConfirmPage() {
   const router = useRouter();
@@ -10,34 +11,56 @@ export default function ConfirmPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [agreed, setAgreed] = useState(false);
 
-  const generateOrderNumber = () => {
-    const now = new Date();
-    const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
-    const random = Math.random().toString(36).substring(2, 6).toUpperCase();
-    return `FB${dateStr}${random}`;
-  };
-
   const handleSubmit = async () => {
     if (!agreed) {
       alert('주문 내용을 확인하고 동의해주세요.');
       return;
     }
 
+    if (!orderData.videoFile) {
+      alert('영상 파일이 없습니다. 처음부터 다시 시도해주세요.');
+      router.push('/order/upload');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      // Generate order number
-      const orderNumber = generateOrderNumber();
-      updateOrderData({ orderNumber });
+      // FormData 생성
+      const formData = new FormData();
+      formData.append('videoFile', orderData.videoFile);
+      formData.append('customerName', orderData.customerName);
+      formData.append('customerPhone', orderData.customerPhone);
+      if (orderData.customerEmail) {
+        formData.append('customerEmail', orderData.customerEmail);
+      }
+      formData.append('recipientName', orderData.recipientName || orderData.customerName);
+      formData.append('recipientPhone', orderData.recipientPhone || orderData.customerPhone);
+      formData.append('addressZipcode', orderData.addressZipcode);
+      formData.append('addressMain', orderData.addressMain);
+      if (orderData.addressDetail) {
+        formData.append('addressDetail', orderData.addressDetail);
+      }
+      if (orderData.deliveryMemo) {
+        formData.append('deliveryMemo', orderData.deliveryMemo);
+      }
+      formData.append('isGift', orderData.isGift ? 'true' : 'false');
+      if (orderData.giftMessage) {
+        formData.append('giftMessage', orderData.giftMessage);
+      }
 
-      // TODO: API call to create order
-      // For now, simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // 주문 생성 API 호출
+      const result = await createOrder(formData);
 
-      router.push('/order/complete');
+      if (result.success && result.orderNumber) {
+        updateOrderData({ orderNumber: result.orderNumber });
+        router.push('/order/complete');
+      } else {
+        throw new Error(result.error || '주문 처리에 실패했습니다.');
+      }
     } catch (error) {
       console.error('Order submission failed:', error);
-      alert('주문 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
+      alert(error instanceof Error ? error.message : '주문 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
     } finally {
       setIsSubmitting(false);
     }

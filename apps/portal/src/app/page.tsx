@@ -1,4 +1,4 @@
-import { services } from '@bkamp/shared';
+import { services, getServiceUrl } from '@bkamp/shared';
 import Link from 'next/link';
 
 export default function Home() {
@@ -47,9 +47,10 @@ function ServiceCard({ service }: { service: (typeof services)[number] }) {
   };
 
   const bgColor = colorMap[service.color] || 'bg-white';
+  const serviceUrl = getServiceUrl(service.id);
 
   return (
-    <Link href={`/${service.id}`}>
+    <a href={serviceUrl} target="_blank" rel="noopener noreferrer">
       <div className={`nb-card p-6 ${bgColor} cursor-pointer h-full`}>
         <div className="text-5xl mb-4">{service.icon}</div>
         <h2 className="text-xl font-black text-black mb-2">{service.name}</h2>
@@ -60,6 +61,6 @@ function ServiceCard({ service }: { service: (typeof services)[number] }) {
           </span>
         )}
       </div>
-    </Link>
+    </a>
   );
 }

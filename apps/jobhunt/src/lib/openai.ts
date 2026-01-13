@@ -1,15 +1,15 @@
-import OpenAI from 'openai';
+import Groq from 'groq-sdk';
 
 // Lazy initialization to avoid build errors
-let openaiClient: OpenAI | null = null;
+let groqClient: Groq | null = null;
 
-function getOpenAI(): OpenAI {
-  if (!openaiClient) {
-    openaiClient = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
+function getGroq(): Groq {
+  if (!groqClient) {
+    groqClient = new Groq({
+      apiKey: process.env.GROQ_API_KEY,
     });
   }
-  return openaiClient;
+  return groqClient;
 }
 
 export interface ResumeAnalysis {
@@ -21,9 +21,9 @@ export interface ResumeAnalysis {
 }
 
 export async function analyzeResume(resumeText: string): Promise<ResumeAnalysis> {
-  const openai = getOpenAI();
-  const response = await openai.chat.completions.create({
-    model: 'gpt-4o-mini',
+  const groq = getGroq();
+  const response = await groq.chat.completions.create({
+    model: 'llama-3.3-70b-versatile',
     messages: [
       {
         role: 'system',
@@ -34,7 +34,7 @@ export async function analyzeResume(resumeText: string): Promise<ResumeAnalysis>
 4. Improvement suggestions (2-3 bullet points)
 5. A brief professional summary (1-2 sentences)
 
-Respond in JSON format with these exact keys:
+You MUST respond with ONLY valid JSON in this exact format, no other text:
 {
   "skills": ["skill1", "skill2", ...],
   "experienceYears": number,
@@ -48,7 +48,6 @@ Respond in JSON format with these exact keys:
         content: `Analyze this resume:\n\n${resumeText}`,
       },
     ],
-    response_format: { type: 'json_object' },
     temperature: 0.3,
   });
 
@@ -57,7 +56,13 @@ Respond in JSON format with these exact keys:
     throw new Error('Failed to analyze resume');
   }
 
-  return JSON.parse(content) as ResumeAnalysis;
+  // Extract JSON from response (handle potential markdown code blocks)
+  const jsonMatch = content.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) {
+    throw new Error('Failed to parse resume analysis');
+  }
+
+  return JSON.parse(jsonMatch[0]) as ResumeAnalysis;
 }
 
 export interface FitScoreResult {
@@ -87,9 +92,9 @@ export async function calculateFitScore(
     desired_salary_max: number | null;
   }
 ): Promise<FitScoreResult> {
-  const openai = getOpenAI();
-  const response = await openai.chat.completions.create({
-    model: 'gpt-4o-mini',
+  const groq = getGroq();
+  const response = await groq.chat.completions.create({
+    model: 'llama-3.3-70b-versatile',
     messages: [
       {
         role: 'system',
@@ -101,7 +106,7 @@ Consider:
 3. Salary match (20% weight) - Does the job's budget align with candidate expectations?
 4. Overall compatibility (15% weight) - General fit based on job description
 
-Respond in JSON format:
+You MUST respond with ONLY valid JSON in this exact format, no other text:
 {
   "score": number (0-100),
   "reasons": {
@@ -130,7 +135,6 @@ Required Experience: ${jobPosting.experience_required || 'Not specified'} years
 Budget: $${jobPosting.salary_min || 0}-${jobPosting.salary_max || 0}/hr`,
       },
     ],
-    response_format: { type: 'json_object' },
     temperature: 0.3,
   });
 
@@ -139,7 +143,13 @@ Budget: $${jobPosting.salary_min || 0}-${jobPosting.salary_max || 0}/hr`,
     throw new Error('Failed to calculate fit score');
   }
 
-  return JSON.parse(content) as FitScoreResult;
+  // Extract JSON from response
+  const jsonMatch = content.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) {
+    throw new Error('Failed to parse fit score');
+  }
+
+  return JSON.parse(jsonMatch[0]) as FitScoreResult;
 }
 
 export async function generateCoverLetter(
@@ -150,9 +160,9 @@ export async function generateCoverLetter(
     description: string;
   }
 ): Promise<string> {
-  const openai = getOpenAI();
-  const response = await openai.chat.completions.create({
-    model: 'gpt-4o-mini',
+  const groq = getGroq();
+  const response = await groq.chat.completions.create({
+    model: 'llama-3.3-70b-versatile',
     messages: [
       {
         role: 'system',

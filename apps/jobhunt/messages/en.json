@@ -1,0 +1,139 @@
+{
+  "common": {
+    "appName": "JobHunt",
+    "tagline": "AI-Powered Job Matching for Freelancers",
+    "login": "Log in",
+    "signup": "Sign up",
+    "logout": "Log out",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "jobs": "Jobs",
+    "applications": "Applications",
+    "settings": "Settings",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "success": "Success!"
+  },
+  "landing": {
+    "hero": {
+      "title": "Find Your Perfect Job, Automatically",
+      "subtitle": "Upload your resume, and our AI will match you with the best freelance opportunities. Get instant alerts and apply with one click.",
+      "cta": "Get Started Free",
+      "ctaSecondary": "Learn More"
+    },
+    "features": {
+      "title": "How It Works",
+      "scan": {
+        "title": "Upload & Scan",
+        "description": "Upload your resume and our AI instantly analyzes your skills, experience, and strengths."
+      },
+      "match": {
+        "title": "Smart Matching",
+        "description": "We continuously scan job platforms and match opportunities to your profile with detailed fit scores."
+      },
+      "alert": {
+        "title": "Instant Alerts",
+        "description": "Get notified immediately when a high-fit job is found. Never miss an opportunity again."
+      },
+      "apply": {
+        "title": "One-Click Apply",
+        "description": "Generate AI-powered cover letters and apply to jobs with a single click."
+      }
+    },
+    "platforms": {
+      "title": "Supported Platforms",
+      "description": "We aggregate jobs from top freelance platforms"
+    },
+    "cta": {
+      "title": "Ready to Find Your Next Opportunity?",
+      "subtitle": "Join thousands of freelancers who have found their perfect jobs with JobHunt.",
+      "button": "Start Free Trial"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome back",
+      "subtitle": "Sign in to your account",
+      "email": "Email address",
+      "password": "Password",
+      "submit": "Sign in",
+      "forgotPassword": "Forgot password?",
+      "noAccount": "Don't have an account?",
+      "signupLink": "Sign up"
+    },
+    "signup": {
+      "title": "Create your account",
+      "subtitle": "Start finding your perfect jobs today",
+      "name": "Full name",
+      "email": "Email address",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "submit": "Create account",
+      "hasAccount": "Already have an account?",
+      "loginLink": "Sign in"
+    }
+  },
+  "dashboard": {
+    "title": "Your Job Matches",
+    "subtitle": "Jobs matched to your profile, sorted by fit score",
+    "noMatches": "No matches yet. Upload your resume to get started!",
+    "uploadResume": "Upload Resume",
+    "filters": {
+      "all": "All",
+      "new": "New",
+      "saved": "Saved",
+      "applied": "Applied"
+    }
+  },
+  "resume": {
+    "title": "Your Resumes",
+    "upload": {
+      "title": "Upload Resume",
+      "description": "Drag and drop your resume here, or click to browse",
+      "formats": "Supported formats: PDF, DOCX",
+      "analyzing": "Analyzing your resume..."
+    },
+    "analysis": {
+      "title": "Resume Analysis",
+      "skills": "Skills Detected",
+      "experience": "Years of Experience",
+      "strengths": "Key Strengths",
+      "suggestions": "Improvement Suggestions"
+    }
+  },
+  "jobs": {
+    "fitScore": "Fit Score",
+    "whyMatch": "Why this matches",
+    "skills": "Required Skills",
+    "budget": "Budget",
+    "postedAt": "Posted",
+    "deadline": "Deadline",
+    "apply": "Apply Now",
+    "save": "Save",
+    "dismiss": "Not Interested",
+    "viewDetails": "View Details"
+  },
+  "preferences": {
+    "title": "Job Preferences",
+    "subtitle": "Tell us what you're looking for",
+    "roles": "Desired Roles",
+    "rolesPlaceholder": "e.g., Web Developer, UI Designer",
+    "salary": "Hourly Rate Range",
+    "salaryMin": "Minimum",
+    "salaryMax": "Maximum",
+    "workType": "Work Type",
+    "remote": "Remote",
+    "hybrid": "Hybrid",
+    "onsite": "On-site",
+    "contractType": "Contract Type",
+    "fulltime": "Full-time",
+    "contract": "Contract",
+    "freelance": "Freelance",
+    "minFitScore": "Minimum Fit Score for Alerts",
+    "save": "Save Preferences"
+  }
+}

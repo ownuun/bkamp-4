@@ -22,7 +22,7 @@ export default function ChatListPage() {
     if (!user) return;
 
     const { data } = await supabase
-      .from('chat_sessions')
+      .from('founders_sessions')
       .select('*')
       .eq('user_id', user.id)
       .order('updated_at', { ascending: false });
@@ -41,7 +41,7 @@ export default function ChatListPage() {
 
     if (!confirm('이 대화를 삭제하시겠습니까?')) return;
 
-    await supabase.from('chat_sessions').delete().eq('id', sessionId);
+    await supabase.from('founders_sessions').delete().eq('id', sessionId);
     setSessions((prev) => prev.filter((s) => s.id !== sessionId));
   };
 

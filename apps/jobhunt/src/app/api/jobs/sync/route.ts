@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     // Upsert jobs into database
     for (const job of upworkJobs) {
       const { error } = await supabase
-        .from('job_postings')
+        .from('jobhunt_postings')
         .upsert(
           {
             platform: 'upwork',
@@ -86,7 +86,7 @@ export async function GET() {
     const supabase = await createClient();
 
     const { count, error } = await supabase
-      .from('job_postings')
+      .from('jobhunt_postings')
       .select('*', { count: 'exact', head: true });
 
     if (error) {
@@ -94,7 +94,7 @@ export async function GET() {
     }
 
     const { data: latest } = await supabase
-      .from('job_postings')
+      .from('jobhunt_postings')
       .select('created_at')
       .order('created_at', { ascending: false })
       .limit(1)

@@ -22,8 +22,9 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4">
         <div className="flex h-14 items-center justify-between">
-          <Link href="/personas" className="font-bold text-lg">
-            창업가 멘토
+          <Link href="/personas" className="flex items-center gap-2">
+            <img src="/logo.png" alt="Founders" className="h-8 w-8" />
+            <span className="font-bold text-lg">창업가 멘토</span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-1">

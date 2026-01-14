@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
 
     // Get user's primary resume
     const { data: resume, error: resumeError } = await supabase
-      .from('resumes')
+      .from('jobhunt_resumes')
       .select('*')
       .eq('user_id', user.id)
       .eq('is_primary', true)
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
 
     // Get job details
     const { data: job, error: jobError } = await supabase
-      .from('job_postings')
+      .from('jobhunt_postings')
       .select('*')
       .eq('id', jobId)
       .single();
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
 
     // Get existing match
     const { data: match } = await supabase
-      .from('job_matches')
+      .from('jobhunt_matches')
       .select('id')
       .eq('user_id', user.id)
       .eq('job_id', jobId)
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
 
     // Check for existing application
     const { data: existingApp } = await supabase
-      .from('applications')
+      .from('jobhunt_applications')
       .select('id')
       .eq('user_id', user.id)
       .eq('job_id', jobId)
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
 
     // Create application
     const { data: application, error: appError } = await supabase
-      .from('applications')
+      .from('jobhunt_applications')
       .insert({
         user_id: user.id,
         job_id: jobId,
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
     // Update job match status to 'applied'
     if (match) {
       await supabase
-        .from('job_matches')
+        .from('jobhunt_matches')
         .update({ status: 'applied' })
         .eq('id', match.id);
     }
@@ -143,7 +143,7 @@ export async function GET(request: NextRequest) {
     const offset = (page - 1) * limit;
 
     let query = supabase
-      .from('applications')
+      .from('jobhunt_applications')
       .select(`
         *,
         job:job_postings(*),

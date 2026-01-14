@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
     // Get user's resume with analysis
     const { data: resume, error: resumeError } = await supabase
-      .from('resumes')
+      .from('jobhunt_resumes')
       .select('*')
       .eq('user_id', user.id)
       .eq('is_primary', true)
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
 
     // Get job posting
     const { data: job, error: jobError } = await supabase
-      .from('job_postings')
+      .from('jobhunt_postings')
       .select('*')
       .eq('id', jobId)
       .single();

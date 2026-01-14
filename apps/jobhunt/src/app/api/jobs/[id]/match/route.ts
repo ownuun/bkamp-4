@@ -20,7 +20,7 @@ export async function POST(
 
     // Get user's resume with analysis
     const { data: resume, error: resumeError } = await supabase
-      .from('resumes')
+      .from('jobhunt_resumes')
       .select('*')
       .eq('user_id', user.id)
       .eq('is_primary', true)
@@ -35,14 +35,14 @@ export async function POST(
 
     // Get user preferences
     const { data: preferences } = await supabase
-      .from('job_preferences')
+      .from('jobhunt_preferences')
       .select('*')
       .eq('user_id', user.id)
       .single();
 
     // Get job posting
     const { data: job, error: jobError } = await supabase
-      .from('job_postings')
+      .from('jobhunt_postings')
       .select('*')
       .eq('id', params.id)
       .single();
@@ -73,7 +73,7 @@ export async function POST(
 
     // Save or update job match
     const { data: match, error: matchError } = await supabase
-      .from('job_matches')
+      .from('jobhunt_matches')
       .upsert({
         user_id: user.id,
         job_id: params.id,

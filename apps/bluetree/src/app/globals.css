@@ -13,3 +13,29 @@ body {
 .container {
   @apply max-w-4xl mx-auto px-4;
 }
+
+/* 스케치 스타일 카드 */
+.sketch-card {
+  @apply bg-white p-6;
+  border: 2px solid #3d5a3d;
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+  box-shadow: 2px 2px 0 rgba(61, 90, 61, 0.3);
+}
+
+/* 스케치 스타일 버튼 */
+.sketch-btn {
+  @apply px-4 py-2 bg-white text-primary-dark whitespace-nowrap;
+  @apply hover:bg-warm-100 transition-colors;
+  border: 2px solid #3d5a3d;
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+  box-shadow: 2px 2px 0 rgba(61, 90, 61, 0.3);
+}
+
+/* 스케치 스타일 input */
+.sketch-input {
+  @apply w-full px-4 py-3 bg-white text-primary-dark placeholder:text-primary-dark/40;
+  @apply focus:outline-none;
+  border: 2px solid #3d5a3d;
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+  box-shadow: 2px 2px 0 rgba(61, 90, 61, 0.3);
+}

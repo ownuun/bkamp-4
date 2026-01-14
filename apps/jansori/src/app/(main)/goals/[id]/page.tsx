@@ -27,9 +27,10 @@ export default function GoalDetailPage() {
   const [testMessage, setTestMessage] = useState<string | null>(null);
 
   // 설정 상태
-  const [tone, setTone] = useState<ToneType>('friend');
-  const [timeSlots, setTimeSlots] = useState<string[]>(['09:00']);
+  const [tone, setTone] = useState<ToneType>('cold');
+  const [timeSlots, setTimeSlots] = useState<string[]>([]);
   const [isEnabled, setIsEnabled] = useState(true);
+  const [situation, setSituation] = useState('');
 
   useEffect(() => {
     loadGoal();
@@ -43,11 +44,11 @@ export default function GoalDetailPage() {
 
     // 목표 로드
     const { data: goalData } = await supabase
-      .from('goals')
+      .from('jansori_goals')
       .select(
         `
         *,
-        nagging_settings (*)
+        jansori_settings (*)
       `
       )
       .eq('id', goalId)
@@ -61,11 +62,12 @@ export default function GoalDetailPage() {
 
     const formattedGoal = {
       ...goalData,
-      nagging_settings: Array.isArray(goalData.nagging_settings)
-        ? goalData.nagging_settings[0] || null
-        : goalData.nagging_settings,
+      nagging_settings: Array.isArray(goalData.jansori_settings)
+        ? goalData.jansori_settings[0] || null
+        : goalData.jansori_settings,
     };
     setGoal(formattedGoal);
+    setSituation(formattedGoal.situation || '');
 
     // 설정 초기화
     if (formattedGoal.nagging_settings) {
@@ -76,7 +78,7 @@ export default function GoalDetailPage() {
 
     // 히스토리 로드
     const { data: historyData } = await supabase
-      .from('nagging_history')
+      .from('jansori_history')
       .select('*')
       .eq('goal_id', goalId)
       .eq('user_id', user.id)
@@ -90,6 +92,14 @@ export default function GoalDetailPage() {
   const handleSaveSettings = async () => {
     setIsSaving(true);
     try {
+      // 목표 상황 업데이트
+      await fetch(`/api/goals/${goalId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ situation }),
+      });
+
+      // 잔소리 설정 업데이트
       await fetch(`/api/goals/${goalId}/settings`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -167,20 +177,24 @@ export default function GoalDetailPage() {
         </div>
       </div>
 
-      {/* Test Message */}
-      {testMessage && (
-        <Card elevation={1}>
-          <div className="p-4 bg-yellow-50">
-            <div className="flex items-start gap-3">
-              <span className="text-2xl">💬</span>
-              <div>
-                <p className="font-bold text-sm mb-1">테스트 잔소리</p>
-                <p className="italic">&quot;{testMessage}&quot;</p>
-              </div>
-            </div>
-          </div>
-        </Card>
-      )}
+      {/* Situation */}
+      <Card elevation={2}>
+        <div className="p-6">
+          <h2 className="text-xl font-bold mb-4">내 상황</h2>
+          <p className="text-sm text-muted mb-3">
+            현재 상황을 적어두면 더 맞춤형 잔소리를 받을 수 있어요
+          </p>
+          <textarea
+            value={situation}
+            onChange={(e) => setSituation(e.target.value.slice(0, 5000))}
+            placeholder="예: 요즘 야근이 많아서 운동할 시간이 없어요. 주말에라도 꼭 하고 싶은데..."
+            className="w-full p-3 rounded-lg border-2 border-black min-h-[120px] resize-none"
+          />
+          <p className="text-xs text-muted mt-1 text-right">
+            {situation.length}/5000자
+          </p>
+        </div>
+      </Card>
 
       {/* Settings */}
       <Card elevation={2}>
@@ -212,26 +226,49 @@ export default function GoalDetailPage() {
             <label className="block text-sm font-bold mb-2">
               알림 시간 (최대 3개)
             </label>
-            <div className="flex flex-wrap gap-2">
-              {['09:00', '12:00', '18:00', '21:00'].map((time) => (
-                <button
-                  key={time}
-                  onClick={() => {
-                    const slots = timeSlots.includes(time)
-                      ? timeSlots.filter((t) => t !== time)
-                      : [...timeSlots, time].slice(0, 3);
-                    setTimeSlots(slots);
-                  }}
-                  className={`px-3 py-2 rounded-lg border-2 border-black transition-colors ${
-                    timeSlots.includes(time)
-                      ? 'bg-primary text-white'
-                      : 'bg-white hover:bg-gray-100'
-                  }`}
-                >
-                  {time}
-                </button>
-              ))}
+            <div className="flex gap-2 mb-3">
+              <input
+                type="time"
+                id="time-input-detail"
+                className="flex-1 p-2 rounded-lg border-2 border-black"
+              />
+              <button
+                onClick={() => {
+                  const input = document.getElementById('time-input-detail') as HTMLInputElement;
+                  const time = input?.value;
+                  if (time && !timeSlots.includes(time) && timeSlots.length < 3) {
+                    setTimeSlots([...timeSlots, time].sort());
+                    input.value = '';
+                  }
+                }}
+                className="px-4 py-2 rounded-lg border-2 border-black bg-primary text-white hover:bg-primary/90"
+              >
+                추가
+              </button>
             </div>
+            <div className="space-y-2">
+              {timeSlots.length === 0 ? (
+                <p className="text-muted text-center py-2">시간을 추가해주세요</p>
+              ) : (
+                timeSlots.map((time) => (
+                  <div
+                    key={time}
+                    className="flex items-center justify-between p-2 rounded-lg border-2 border-black bg-primary text-white"
+                  >
+                    <span className="font-bold">{time}</span>
+                    <button
+                      onClick={() => setTimeSlots(timeSlots.filter((t) => t !== time))}
+                      className="text-white hover:text-gray-200"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+            <p className="text-xs text-muted mt-2">
+              {timeSlots.length}/3개 선택됨
+            </p>
           </div>
 
           {/* Enable Toggle */}
@@ -267,6 +304,18 @@ export default function GoalDetailPage() {
             {isGenerating && (
               <div className="text-center py-2">
                 <span className="text-muted">생성 중...</span>
+              </div>
+            )}
+            {/* Test Message */}
+            {testMessage && (
+              <div className="p-4 bg-yellow-50 rounded-lg border-2 border-black mt-3">
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl">💬</span>
+                  <div>
+                    <p className="font-bold text-sm mb-1">테스트 잔소리</p>
+                    <p className="italic">&quot;{testMessage}&quot;</p>
+                  </div>
+                </div>
               </div>
             )}
           </div>

@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { Button, Card } from '@/lib/hand-drawn-ui';
+import Image from 'next/image';
+import { Card } from '@/lib/hand-drawn-ui';
 import { TONE_INFO } from '@/types';
 
 export default function LandingPage() {
@@ -12,10 +13,14 @@ export default function LandingPage() {
       <div className="max-w-lg mx-auto">
         {/* Hero Section */}
         <div className="text-center mb-12">
-          <div className="text-8xl mb-6">
-            <span role="img" aria-label="speaking head">
-              {String.fromCodePoint(0x1f5e3, 0xfe0f)}
-            </span>
+          <div className="mb-6 flex justify-center">
+            <Image
+              src="/logo.png"
+              alt="Jansori"
+              width={120}
+              height={120}
+              priority
+            />
           </div>
           <h1 className="text-4xl font-bold text-text mb-4">Jansori</h1>
           <p className="text-xl text-muted mb-2">잔소리 AI</p>
@@ -29,7 +34,9 @@ export default function LandingPage() {
         {/* CTA Button */}
         <div className="mb-12">
           <Link href="/login" className="block">
-            <Button>시작하기</Button>
+            <button className="w-full px-6 py-3 border-2 border-black rounded-lg bg-surface hover:bg-background transition-colors text-lg font-bold">
+              시작하기
+            </button>
           </Link>
         </div>
 
@@ -87,8 +94,10 @@ export default function LandingPage() {
 
         {/* Footer CTA */}
         <div className="text-center">
-          <Link href="/login">
-            <Button>지금 시작하기</Button>
+          <Link href="/login" className="inline-block w-full">
+            <button className="w-full px-6 py-3 border-2 border-black rounded-lg bg-surface hover:bg-background transition-colors text-lg font-bold">
+              지금 시작하기
+            </button>
           </Link>
           <p className="text-muted mt-4 text-sm">
             무료로 시작할 수 있어요!

@@ -15,11 +15,11 @@ export async function GET() {
   }
 
   const { data: goals, error } = await supabase
-    .from('goals')
+    .from('jansori_goals')
     .select(
       `
       *,
-      nagging_settings (*)
+      jansori_settings (*)
     `
     )
     .eq('user_id', user.id)
@@ -56,11 +56,11 @@ export async function POST(request: NextRequest) {
   }
 
   const { data: goal, error } = await supabase
-    .from('goals')
+    .from('jansori_goals')
     .insert({
       user_id: user.id,
       title: body.title,
-      description: body.description || null,
+      situation: body.situation || null,
       category: body.category || 'etc',
     })
     .select()

@@ -48,23 +48,27 @@ export async function GET(request: NextRequest) {
 
   try {
     // 현재 시간에 활성화된 잔소리 설정 조회
-    const { data: settings, error } = await db
-      .from('nagging_settings')
+    const { data: allSettings, error } = await db
+      .from('jansori_settings')
       .select(`
         *,
-        goals (id, title, description, user_id),
-        profiles:goals(user_id(nickname))
+        jansori_goals (id, title, description, situation, user_id)
       `)
-      .eq('is_enabled', true)
-      .contains('time_slots', [currentTime]);
+      .eq('is_enabled', true);
 
     if (error) {
       console.error('Failed to fetch settings:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    if (!settings || settings.length === 0) {
-      return NextResponse.json({ message: 'No naggings to process', count: 0 });
+    // 현재 시간과 매칭되는 설정만 필터링
+    const settings = (allSettings || []).filter((setting) => {
+      const timeSlots = setting.time_slots as string[] | null;
+      return timeSlots && timeSlots.includes(currentTime);
+    });
+
+    if (settings.length === 0) {
+      return NextResponse.json({ message: 'No naggings to process', count: 0, currentTime });
     }
 
     let processedCount = 0;
@@ -74,7 +78,7 @@ export async function GET(request: NextRequest) {
       const shouldSend = checkFrequency(setting.frequency, setting.custom_days, currentDay);
       if (!shouldSend) continue;
 
-      const goal = setting.goals as { id: string; title: string; description: string | null; user_id: string } | null;
+      const goal = setting.jansori_goals as { id: string; title: string; description: string | null; situation: string | null; user_id: string } | null;
       if (!goal) continue;
 
       // 사용자 프로필 조회
@@ -91,11 +95,12 @@ export async function GET(request: NextRequest) {
         setting.tone as ToneType,
         goal.title,
         goal.description,
-        userName
+        userName,
+        goal.situation
       );
 
       // 히스토리 저장
-      await db.from('nagging_history').insert({
+      await db.from('jansori_history').insert({
         user_id: goal.user_id,
         goal_id: goal.id,
         message,

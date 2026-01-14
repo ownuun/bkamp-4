@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     const offset = (page - 1) * limit;
 
     let query = supabase
-      .from('job_postings')
+      .from('jobhunt_postings')
       .select('*', { count: 'exact' })
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);

@@ -38,7 +38,7 @@ export default function HistoryPage() {
       }
 
       const { data, error } = await supabase
-        .from('recommendations')
+        .from('webtoon_recommendations')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });

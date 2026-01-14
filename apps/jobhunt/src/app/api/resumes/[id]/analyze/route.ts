@@ -20,7 +20,7 @@ export async function POST(
 
     // Get resume
     const { data: resume, error: resumeError } = await supabase
-      .from('resumes')
+      .from('jobhunt_resumes')
       .select('*')
       .eq('id', params.id)
       .eq('user_id', user.id)
@@ -48,7 +48,7 @@ export async function POST(
 
     // Update resume with analysis
     const { data: updatedResume, error: updateError } = await supabase
-      .from('resumes')
+      .from('jobhunt_resumes')
       .update({
         parsed_data: analysis,
         skills: analysis.skills,

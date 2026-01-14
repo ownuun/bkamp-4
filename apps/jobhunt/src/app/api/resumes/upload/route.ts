@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
 
     // Upload to Supabase Storage
     const { error: uploadError } = await supabase.storage
-      .from('resumes')
+      .from('jobhunt_resumes')
       .upload(fileName, file, {
         contentType: file.type,
         upsert: false,
@@ -68,12 +68,12 @@ export async function POST(request: NextRequest) {
 
     // Get public URL
     const { data: { publicUrl } } = supabase.storage
-      .from('resumes')
+      .from('jobhunt_resumes')
       .getPublicUrl(fileName);
 
     // Save resume record to database
     const { data: resume, error: dbError } = await supabase
-      .from('resumes')
+      .from('jobhunt_resumes')
       .insert({
         user_id: user.id,
         file_url: publicUrl,

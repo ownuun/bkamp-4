@@ -22,13 +22,13 @@ export default function ProfilePage() {
 
       const [transactionsRes, sessionsRes] = await Promise.all([
         supabase
-          .from('credit_transactions')
+          .from('founders_credit_transactions')
           .select('*')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false })
           .limit(10),
         supabase
-          .from('chat_sessions')
+          .from('founders_sessions')
           .select('id')
           .eq('user_id', user.id),
       ]);

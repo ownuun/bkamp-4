@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/client";
 
-export type OAuthProvider = "google" | "kakao";
+export type OAuthProvider = "google";
 
 export async function signInWithOAuth(provider: OAuthProvider) {
   const supabase = createClient();
@@ -9,15 +9,30 @@ export async function signInWithOAuth(provider: OAuthProvider) {
     provider,
     options: {
       redirectTo: `${window.location.origin}/auth/callback`,
-      queryParams:
-        provider === "kakao"
-          ? {
-              // Kakao specific params if needed
-            }
-          : undefined,
-    },
+      },
   });
 
+  return { data, error };
+}
+
+export async function signInWithPassword(email: string, password: string) {
+  const supabase = createClient();
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+  return { data, error };
+}
+
+export async function signUp(email: string, password: string, username?: string) {
+  const supabase = createClient();
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: { username },
+    },
+  });
   return { data, error };
 }
 

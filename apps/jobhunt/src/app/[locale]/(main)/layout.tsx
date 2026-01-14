@@ -33,9 +33,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="flex items-center gap-2 h-16 px-6 border-b border-gray-200">
-            <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-              <BoltIcon className="w-5 h-5 text-white" />
-            </div>
+            <img src="/logo.png" alt="JobHunt" className="w-8 h-8" />
             <span className="text-xl font-bold text-gray-900">{t('appName')}</span>
           </div>
 

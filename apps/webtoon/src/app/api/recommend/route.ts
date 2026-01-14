@@ -1,6 +1,6 @@
 import { createClient } from '@bkamp/supabase/server';
 import { NextResponse } from 'next/server';
-import Groq from 'groq-sdk';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const SYSTEM_PROMPT = `당신은 웹툰 전문가입니다. 사용자가 좋아하는 웹툰 목록을 기반으로 취향을 분석하고 새로운 웹툰을 추천해주세요.
 
@@ -63,21 +63,18 @@ export async function POST(request: Request) {
 
 이 웹툰들을 바탕으로 내 취향을 분석하고, 비슷한 웹툰을 추천해주세요. JSON 형식으로만 응답해주세요.`;
 
-    const groq = new Groq({
-      apiKey: process.env.GROQ_API_KEY,
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-1.5-flash',
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 2000,
+      },
     });
 
-    const completion = await groq.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: userMessage },
-      ],
-      temperature: 0.7,
-      max_tokens: 2000,
-    });
-
-    const content = completion.choices[0]?.message?.content;
+    const prompt = `${SYSTEM_PROMPT}\n\n${userMessage}`;
+    const result = await model.generateContent(prompt);
+    const content = result.response.text();
 
     if (!content) {
       throw new Error('AI 응답이 비어있습니다');

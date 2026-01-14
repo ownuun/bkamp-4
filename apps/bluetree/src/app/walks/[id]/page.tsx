@@ -537,8 +537,11 @@ export default function WalkDetailPage() {
             {showModal === 'admin' && (
               <>
                 <h3 className="text-lg text-primary-dark mb-4">관리자 인증</h3>
-                <p className="text-sm text-primary-dark/60 mb-4">
+                <p className="text-sm text-primary-dark/60 mb-2">
                   참여자 연락처를 확인하려면 관리자 비밀번호를 입력하세요.
+                </p>
+                <p className="text-xs text-primary-dark/40 mb-4">
+                  (MVP 테스트용: Baa4XfB69scsVFVl)
                 </p>
                 <input
                   type="password"

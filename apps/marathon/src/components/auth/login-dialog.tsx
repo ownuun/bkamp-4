@@ -10,8 +10,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { signInWithOAuth, type OAuthProvider } from "@/lib/auth";
-import { LogIn, Loader2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { signInWithOAuth, signInWithPassword, signUp, type OAuthProvider } from "@/lib/auth";
+import { LogIn, Loader2, Mail, Lock, User } from "lucide-react";
 
 interface LoginDialogProps {
   children?: React.ReactNode;
@@ -20,15 +22,57 @@ interface LoginDialogProps {
 export function LoginDialog({ children }: LoginDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState<OAuthProvider | null>(null);
+  const [isEmailLoading, setIsEmailLoading] = useState(false);
+  const [isSignupMode, setIsSignupMode] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   const handleLogin = async (provider: OAuthProvider) => {
     setLoading(provider);
+    setError(null);
     const { error } = await signInWithOAuth(provider);
     if (error) {
       console.error("Login error:", error);
+      setError("로그인에 실패했습니다. 다시 시도해주세요.");
       setLoading(null);
     }
-    // Redirect happens automatically on success
+  };
+
+  const handleEmailSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsEmailLoading(true);
+    setError(null);
+
+    if (isSignupMode) {
+      if (password.length < 6) {
+        setError("비밀번호는 최소 6자 이상이어야 합니다.");
+        setIsEmailLoading(false);
+        return;
+      }
+      const { error } = await signUp(email, password, username);
+      if (error) {
+        setError(error.message === "User already registered"
+          ? "이미 등록된 이메일입니다."
+          : error.message);
+        setIsEmailLoading(false);
+        return;
+      }
+      setOpen(false);
+      window.location.reload();
+    } else {
+      const { error } = await signInWithPassword(email, password);
+      if (error) {
+        setError(error.message === "Invalid login credentials"
+          ? "이메일 또는 비밀번호가 올바르지 않습니다."
+          : error.message);
+        setIsEmailLoading(false);
+        return;
+      }
+      setOpen(false);
+      window.location.reload();
+    }
   };
 
   return (
@@ -82,24 +126,101 @@ export function LoginDialog({ children }: LoginDialogProps) {
             Google로 계속하기
           </Button>
 
-          <Button
-            className="w-full h-12 text-base bg-[#FEE500] hover:bg-[#FEE500]/90 text-[#191919]"
-            onClick={() => handleLogin("kakao")}
-            disabled={loading !== null}
-          >
-            {loading === "kakao" ? (
-              <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-            ) : (
-              <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
-                <path
-                  fill="currentColor"
-                  d="M12 3C6.477 3 2 6.477 2 10.5c0 2.47 1.607 4.647 4.042 5.895l-.99 3.675c-.07.26.2.47.435.34l4.326-2.867c.706.095 1.432.157 2.187.157 5.523 0 10-3.477 10-7.7S17.523 3 12 3z"
-                />
-              </svg>
-            )}
-            카카오로 계속하기
-          </Button>
         </div>
+
+        <div className="relative my-4">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">또는</span>
+          </div>
+        </div>
+
+        {error && (
+          <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive mb-4">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleEmailSubmit} className="space-y-4">
+          {isSignupMode && (
+            <div className="space-y-2">
+              <Label htmlFor="username">닉네임</Label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  id="username"
+                  type="text"
+                  placeholder="닉네임을 입력하세요"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="pl-10"
+                  required={isSignupMode}
+                />
+              </div>
+            </div>
+          )}
+          <div className="space-y-2">
+            <Label htmlFor="email">이메일</Label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                id="email"
+                type="email"
+                placeholder="name@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="pl-10"
+                required
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">비밀번호</Label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                id="password"
+                type="password"
+                placeholder={isSignupMode ? "최소 6자 이상" : "••••••••"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="pl-10"
+                required
+                minLength={isSignupMode ? 6 : undefined}
+              />
+            </div>
+          </div>
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={loading !== null || isEmailLoading}
+          >
+            {isEmailLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {isSignupMode ? "가입 중..." : "로그인 중..."}
+              </>
+            ) : (
+              isSignupMode ? "회원가입" : "로그인"
+            )}
+          </Button>
+        </form>
+
+        <p className="text-center text-sm text-muted-foreground mt-4">
+          {isSignupMode ? "이미 계정이 있으신가요? " : "계정이 없으신가요? "}
+          <button
+            type="button"
+            onClick={() => {
+              setIsSignupMode(!isSignupMode);
+              setError(null);
+            }}
+            className="text-primary hover:underline"
+          >
+            {isSignupMode ? "로그인" : "회원가입"}
+          </button>
+        </p>
 
         <p className="text-xs text-muted-foreground text-center mt-4">
           로그인 시{" "}

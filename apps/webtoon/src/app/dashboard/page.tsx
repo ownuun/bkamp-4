@@ -143,7 +143,8 @@ export default function DashboardPage() {
         {/* Header */}
         <header className="flex justify-between items-center mb-8">
           <h1 className="text-2xl md:text-3xl font-black flex items-center gap-2">
-            <span>📖</span> 웹툰 추천
+            <img src="/logo.png" alt="Webtoon" className="h-8 w-8" />
+            웹툰 추천
           </h1>
           <div className="flex items-center gap-2 md:gap-4">
             <span className="text-sm text-black/60 hidden sm:block">

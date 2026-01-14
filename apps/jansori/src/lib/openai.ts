@@ -18,9 +18,10 @@ export async function generateNagging(
   tone: ToneType,
   goalTitle: string,
   goalDescription: string | null,
-  userName: string
+  userName: string,
+  situation?: string | null
 ): Promise<string> {
-  const prompt = buildPrompt(tone, goalTitle, goalDescription, userName);
+  const prompt = buildPrompt(tone, goalTitle, goalDescription, userName, situation);
 
   try {
     const groq = getGroqClient();
@@ -44,6 +45,7 @@ export async function generateNagging(
       teacher: '오늘도 최선을 다해봅시다.',
       coach: '당신은 할 수 있습니다! 지금 시작하세요!',
       tsundere: '별로 신경 안 쓰는데... 그래도 해.',
+      cold: '핑계 대지 마. 그냥 해.',
     };
     return fallbacks[tone];
   }

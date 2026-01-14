@@ -11,17 +11,27 @@ import {
   TONE_INFO,
 } from '@/types';
 
+type Step = 1 | 2 | 3;
+
 export default function NewGoalPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [step, setStep] = useState<Step>(1);
   const [data, setData] = useState({
     title: '',
-    description: '',
     category: 'etc' as CategoryType,
-    tone: 'friend' as ToneType,
-    timeSlots: ['09:00'],
+    situation: '',
+    tone: 'cold' as ToneType,
+    timeSlots: [] as string[],
   });
+
+  const nextStep = () => {
+    if (step < 3) setStep((step + 1) as Step);
+  };
+
+  const prevStep = () => {
+    if (step > 1) setStep((step - 1) as Step);
+  };
 
   const handleSubmit = async () => {
     setIsLoading(true);
@@ -32,8 +42,8 @@ export default function NewGoalPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: data.title,
-          description: data.description || null,
           category: data.category,
+          situation: data.situation || null,
         }),
       });
       const { goal } = await goalRes.json();
@@ -60,54 +70,57 @@ export default function NewGoalPage() {
   };
 
   return (
-    <div>
-      {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
-        <Link href="/dashboard" className="text-2xl">
-          ←
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {/* Back Button */}
+        <Link
+          href="/dashboard"
+          className="flex items-center gap-2 text-muted hover:text-foreground mb-4 transition-colors"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+          뒤로가기
         </Link>
-        <h1 className="text-2xl font-bold">새 목표 만들기</h1>
-      </div>
 
-      {/* Progress */}
-      <div className="mb-6">
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-sm text-muted">Step {step}/3</span>
+        {/* Progress */}
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-sm text-muted">Step {step}/3</span>
+            <span className="text-sm text-muted">{Math.round((step / 3) * 100)}%</span>
+          </div>
+          <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-primary transition-all duration-300"
+              style={{ width: `${(step / 3) * 100}%` }}
+            />
+          </div>
         </div>
-        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-primary transition-all duration-300"
-            style={{ width: `${(step / 3) * 100}%` }}
-          />
-        </div>
-      </div>
 
-      {/* Step 1: Goal Info */}
-      {step === 1 && (
-        <Card elevation={2}>
-          <div className="p-6">
-            <h2 className="text-xl font-bold mb-4">목표 정보</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-bold mb-2">
-                  목표 제목 *
-                </label>
+        {/* Step 1: Goal Info */}
+        {step === 1 && (
+          <Card elevation={2}>
+            <div className="p-8">
+              <h2 className="text-2xl font-bold mb-2">어떤 목표를 이루고 싶어요?</h2>
+              <p className="text-muted mb-6">잔소리 받고 싶은 목표를 알려주세요</p>
+              <div className="mb-4">
                 <Input
                   value={data.title}
                   onChange={(value) => setData({ ...data, title: value })}
                 />
               </div>
-              <div>
-                <label className="block text-sm font-bold mb-2">
-                  상세 설명 (선택)
-                </label>
-                <Input
-                  value={data.description}
-                  onChange={(value) => setData({ ...data, description: value })}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-bold mb-2">카테고리</label>
+              <div className="mb-4">
+                <p className="text-sm text-muted mb-2">카테고리</p>
                 <div className="flex flex-wrap gap-2">
                   {Object.values(CATEGORY_INFO).map((cat) => (
                     <button
@@ -124,109 +137,148 @@ export default function NewGoalPage() {
                   ))}
                 </div>
               </div>
-            </div>
-            {data.title.trim() && (
-              <div className="mt-6" onClick={() => setStep(2)}>
-                <Button>다음</Button>
+              <div className="mb-6">
+                <p className="text-sm font-bold mb-2">내 상황</p>
+                <p className="text-sm text-muted mb-2">
+                  현재 상황을 적어두면 더 맞춤형 잔소리를 받을 수 있어요
+                </p>
+                <textarea
+                  value={data.situation}
+                  onChange={(e) => setData({ ...data, situation: e.target.value.slice(0, 5000) })}
+                  placeholder="예: 요즘 야근이 많아서 운동할 시간이 없어요. 주말에라도 꼭 하고 싶은데..."
+                  className="w-full p-3 rounded-lg border-2 border-black min-h-[100px] resize-none"
+                />
+                <p className="text-xs text-muted mt-1 text-right">
+                  {data.situation.length}/5000자
+                </p>
               </div>
-            )}
-          </div>
-        </Card>
-      )}
+              {data.title.trim() && (
+                <div onClick={nextStep}>
+                  <Button>다음</Button>
+                </div>
+              )}
+            </div>
+          </Card>
+        )}
 
-      {/* Step 2: Tone */}
-      {step === 2 && (
-        <Card elevation={2}>
-          <div className="p-6">
-            <h2 className="text-xl font-bold mb-4">잔소리 톤 선택</h2>
-            <div className="space-y-3 mb-6">
-              {Object.values(TONE_INFO).map((tone) => (
-                <button
-                  key={tone.id}
-                  onClick={() => setData({ ...data, tone: tone.id })}
-                  className={`w-full p-4 rounded-lg border-2 border-black text-left transition-colors ${
-                    data.tone === tone.id
-                      ? 'bg-primary text-white'
-                      : 'bg-white hover:bg-gray-100'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">{tone.emoji}</span>
-                    <div>
-                      <p className="font-bold">{tone.name}</p>
-                      <p
-                        className={`text-sm ${
-                          data.tone === tone.id ? 'text-white/80' : 'text-muted'
-                        }`}
-                      >
-                        {tone.description}
-                      </p>
+        {/* Step 2: Tone */}
+        {step === 2 && (
+          <Card elevation={2}>
+            <div className="p-8">
+              <h2 className="text-2xl font-bold mb-2">어떤 스타일의 잔소리가 좋아요?</h2>
+              <p className="text-muted mb-6">톤을 선택해주세요</p>
+              <div className="space-y-3 mb-6">
+                {Object.values(TONE_INFO).map((tone) => (
+                  <button
+                    key={tone.id}
+                    onClick={() => setData({ ...data, tone: tone.id })}
+                    className={`w-full p-4 rounded-lg border-2 border-black text-left transition-colors ${
+                      data.tone === tone.id
+                        ? 'bg-primary text-white'
+                        : 'bg-white hover:bg-gray-100'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">{tone.emoji}</span>
+                      <div>
+                        <p className="font-bold">{tone.name}</p>
+                        <p
+                          className={`text-sm ${
+                            data.tone === tone.id ? 'text-white/80' : 'text-muted'
+                          }`}
+                        >
+                          {tone.description}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-            <div className="flex gap-3">
-              <div onClick={() => setStep(1)} className="flex-1">
-                <Button>이전</Button>
+                  </button>
+                ))}
               </div>
-              <div onClick={() => setStep(3)} className="flex-1">
-                <Button>다음</Button>
+              <div className="flex justify-between">
+                <div onClick={prevStep}>
+                  <Button>이전</Button>
+                </div>
+                <div onClick={nextStep}>
+                  <Button>다음</Button>
+                </div>
               </div>
             </div>
-          </div>
-        </Card>
-      )}
+          </Card>
+        )}
 
-      {/* Step 3: Time */}
-      {step === 3 && (
-        <Card elevation={2}>
-          <div className="p-6">
-            <h2 className="text-xl font-bold mb-4">알림 시간 설정</h2>
-            <div className="space-y-3 mb-6">
-              {['09:00', '12:00', '18:00', '21:00'].map((time) => (
+        {/* Step 3: Time */}
+        {step === 3 && (
+          <Card elevation={2}>
+            <div className="p-8">
+              <h2 className="text-2xl font-bold mb-2">언제 잔소리 받고 싶어요?</h2>
+              <p className="text-muted mb-6">알림 받을 시간을 설정해주세요</p>
+
+              {/* Time Input */}
+              <div className="flex gap-2 mb-4">
+                <input
+                  type="time"
+                  id="time-input"
+                  className="flex-1 p-3 rounded-lg border-2 border-black"
+                />
                 <button
-                  key={time}
                   onClick={() => {
-                    const slots = data.timeSlots.includes(time)
-                      ? data.timeSlots.filter((t) => t !== time)
-                      : [...data.timeSlots, time].slice(0, 3);
-                    setData({ ...data, timeSlots: slots });
+                    const input = document.getElementById('time-input') as HTMLInputElement;
+                    const time = input?.value;
+                    if (time && !data.timeSlots.includes(time) && data.timeSlots.length < 3) {
+                      setData({ ...data, timeSlots: [...data.timeSlots, time].sort() });
+                      input.value = '';
+                    }
                   }}
-                  className={`w-full p-4 rounded-lg border-2 border-black text-left transition-colors ${
-                    data.timeSlots.includes(time)
-                      ? 'bg-primary text-white'
-                      : 'bg-white hover:bg-gray-100'
-                  }`}
+                  className="px-4 py-2 rounded-lg border-2 border-black bg-primary text-white hover:bg-primary/90"
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold">{time}</span>
-                    {data.timeSlots.includes(time) && <span>✓</span>}
-                  </div>
+                  추가
                 </button>
-              ))}
-            </div>
-            <p className="text-sm text-muted mb-4">
-              최대 3개까지 선택할 수 있어요
-            </p>
-            <div className="flex gap-3">
-              <div onClick={() => setStep(2)} className="flex-1">
-                <Button>이전</Button>
               </div>
-              {!isLoading && data.timeSlots.length > 0 && (
-                <div onClick={handleSubmit} className="flex-1">
-                  <Button>완료</Button>
+
+              {/* Selected Times */}
+              <div className="space-y-2 mb-4">
+                {data.timeSlots.length === 0 ? (
+                  <p className="text-muted text-center py-4">시간을 추가해주세요</p>
+                ) : (
+                  data.timeSlots.map((time) => (
+                    <div
+                      key={time}
+                      className="flex items-center justify-between p-3 rounded-lg border-2 border-black bg-primary text-white"
+                    >
+                      <span className="font-bold">{time}</span>
+                      <button
+                        onClick={() => setData({ ...data, timeSlots: data.timeSlots.filter((t) => t !== time) })}
+                        className="text-white hover:text-gray-200"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <p className="text-sm text-muted mb-4">
+                최대 3개까지 추가할 수 있어요 ({data.timeSlots.length}/3)
+              </p>
+              <div className="flex justify-between">
+                <div onClick={prevStep}>
+                  <Button>이전</Button>
                 </div>
-              )}
-              {isLoading && (
-                <div className="flex-1 text-center py-2">
-                  <span className="text-muted">생성 중...</span>
-                </div>
-              )}
+                {!isLoading && data.timeSlots.length > 0 && (
+                  <div onClick={handleSubmit}>
+                    <Button>완료</Button>
+                  </div>
+                )}
+                {isLoading && (
+                  <div className="text-center py-2">
+                    <span className="text-muted">생성 중...</span>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        </Card>
-      )}
+          </Card>
+        )}
+      </div>
     </div>
   );
 }

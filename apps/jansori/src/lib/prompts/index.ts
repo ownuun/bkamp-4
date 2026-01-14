@@ -90,14 +90,35 @@ const TONE_PROMPTS: Record<ToneType, string> = {
 - "네가 하든 말든... 근데 하는 게 나을 것 같아. 그냥 말해본 거야."
 - "솔직히 안 해도 되는데, 왠지 해야 할 것 같지 않아? 몰라, 네 마음이야."
 `,
+
+  cold: `
+## 페르소나: 냉정한 현실주의자
+- 직설적이고 단도직입적
+- 핑계나 변명에 냉정하게 대응
+- 듣기 싫은 진실을 말함
+- 감정 없이 사실만 전달
+- 자극적이지만 결국 행동을 유도
+
+## 예시 메시지
+- "핑계 대지 마. 안 하고 있잖아. 그게 현실이야."
+- "오늘도 미룬 거지? 그러면서 왜 바뀌길 기대해?"
+- "바쁘다는 말, 진짜 바쁜 거야 아니면 그냥 하기 싫은 거야?"
+- "의지가 없으면 목표 세워봤자 소용없어. 그냥 삭제해."
+- "스스로 속이지 마. 오늘 안 하면 내일도 안 해."
+`,
 };
 
 export function buildPrompt(
   tone: ToneType,
   goalTitle: string,
   goalDescription: string | null,
-  userName: string
+  userName: string,
+  situation?: string | null
 ): string {
+  const situationText = situation
+    ? `\n## 현재 상황\n${situation}\n\n위 상황을 고려하여 더 맞춤형 잔소리를 생성해주세요.`
+    : '';
+
   return `
 ${BASE_SYSTEM_PROMPT}
 
@@ -107,6 +128,7 @@ ${TONE_PROMPTS[tone]}
 - 이름: ${userName}
 - 목표: ${goalTitle}
 - 상세: ${goalDescription || '없음'}
+${situationText}
 
 위 정보를 바탕으로 잔소리 메시지를 생성해주세요.
 `;

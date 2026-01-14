@@ -76,7 +76,7 @@ export async function POST(request: Request) {
     const result = JSON.parse(content);
 
     // 추천 기록 저장 (선택적)
-    await supabase.from('recommendations').insert({
+    await supabase.from('webtoon_recommendations').insert({
       user_id: user.id,
       input_webtoons: webtoons,
       recommendations: result,

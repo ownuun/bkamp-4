@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
 
     // Get user's job matches with job details
     let query = supabase
-      .from('job_matches')
+      .from('jobhunt_matches')
       .select(`
         *,
         job:job_postings(*)

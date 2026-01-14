@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Button, Card } from '@/lib/hand-drawn-ui';
 import { createClient } from '@bkamp/supabase/client';
 import { GoalWithSettings, TONE_INFO, CATEGORY_INFO, Profile } from '@/types';
+import { subscribeToPush, unsubscribeFromPush, isPushSubscribed } from '@/lib/push';
 
 export default function DashboardPage() {
   const supabase = createClient();
@@ -12,11 +13,36 @@ export default function DashboardPage() {
   const [goals, setGoals] = useState<GoalWithSettings[]>([]);
   const [todayNagging, setTodayNagging] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatingGoalId, setGeneratingGoalId] = useState<string | null>(null);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState('');
+  const [pushEnabled, setPushEnabled] = useState(false);
+  const [pushLoading, setPushLoading] = useState(false);
 
   useEffect(() => {
     loadData();
+    checkPushStatus();
   }, []);
+
+  const checkPushStatus = async () => {
+    const subscribed = await isPushSubscribed();
+    setPushEnabled(subscribed);
+  };
+
+  const togglePush = async () => {
+    setPushLoading(true);
+    try {
+      if (pushEnabled) {
+        await unsubscribeFromPush();
+        setPushEnabled(false);
+      } else {
+        const success = await subscribeToPush();
+        setPushEnabled(success);
+      }
+    } finally {
+      setPushLoading(false);
+    }
+  };
 
   const loadData = async () => {
     const {
@@ -34,11 +60,11 @@ export default function DashboardPage() {
 
     // 목표 로드
     const { data: goalsData } = await supabase
-      .from('goals')
+      .from('jansori_goals')
       .select(
         `
         *,
-        nagging_settings (*)
+        jansori_settings (*)
       `
       )
       .eq('user_id', user.id)
@@ -47,9 +73,9 @@ export default function DashboardPage() {
 
     const formattedGoals = (goalsData || []).map((goal: Record<string, unknown>) => ({
       ...goal,
-      nagging_settings: Array.isArray(goal.nagging_settings)
-        ? goal.nagging_settings[0] || null
-        : goal.nagging_settings,
+      nagging_settings: Array.isArray(goal.jansori_settings)
+        ? goal.jansori_settings[0] || null
+        : goal.jansori_settings,
     })) as GoalWithSettings[];
     setGoals(formattedGoals);
 
@@ -58,13 +84,13 @@ export default function DashboardPage() {
     today.setHours(0, 0, 0, 0);
 
     const { data: historyData } = await supabase
-      .from('nagging_history')
+      .from('jansori_history')
       .select('message')
       .eq('user_id', user.id)
       .gte('sent_at', today.toISOString())
       .order('sent_at', { ascending: false })
       .limit(1)
-      .single();
+      .maybeSingle();
 
     if (historyData) {
       setTodayNagging(historyData.message);
@@ -73,8 +99,23 @@ export default function DashboardPage() {
     setIsLoading(false);
   };
 
+  const handleSaveName = async () => {
+    if (!editedName.trim()) return;
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    await supabase
+      .from('profiles')
+      .update({ nickname: editedName.trim() })
+      .eq('id', user.id);
+
+    setProfile(prev => prev ? { ...prev, nickname: editedName.trim() } : prev);
+    setIsEditingName(false);
+  };
+
   const generateTestNagging = async (goalId: string, tone: string) => {
-    setIsGenerating(true);
+    setGeneratingGoalId(goalId);
     try {
       const response = await fetch('/api/nagging/preview', {
         method: 'POST',
@@ -88,7 +129,7 @@ export default function DashboardPage() {
     } catch (error) {
       console.error('Failed to generate nagging:', error);
     } finally {
-      setIsGenerating(false);
+      setGeneratingGoalId(null);
     }
   };
 
@@ -104,11 +145,77 @@ export default function DashboardPage() {
     <div className="space-y-6">
       {/* Welcome */}
       <div className="text-center">
-        <h1 className="text-2xl font-bold">
-          안녕, {profile?.nickname || 'User'}!
-        </h1>
+        {isEditingName ? (
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <input
+              type="text"
+              value={editedName}
+              onChange={(e) => setEditedName(e.target.value)}
+              className="px-3 py-2 border-2 border-black rounded-lg text-center text-xl font-bold w-40"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleSaveName();
+                if (e.key === 'Escape') setIsEditingName(false);
+              }}
+            />
+            <button
+              onClick={handleSaveName}
+              className="px-3 py-2 bg-primary text-white rounded-lg border-2 border-black"
+            >
+              저장
+            </button>
+            <button
+              onClick={() => setIsEditingName(false)}
+              className="px-3 py-2 bg-gray-200 rounded-lg border-2 border-black"
+            >
+              취소
+            </button>
+          </div>
+        ) : (
+          <h1 className="text-2xl font-bold">
+            안녕,{' '}
+            <button
+              onClick={() => {
+                setEditedName(profile?.nickname || '');
+                setIsEditingName(true);
+              }}
+              className="underline hover:text-primary transition-colors"
+            >
+              {profile?.nickname || 'User'}
+            </button>
+            !
+          </h1>
+        )}
         <p className="text-muted">오늘도 목표를 향해 화이팅!</p>
       </div>
+
+      {/* Push Notification Toggle */}
+      <Card elevation={1}>
+        <div className="p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">🔔</span>
+            <div>
+              <p className="font-bold">푸시 알림</p>
+              <p className="text-sm text-muted">
+                {pushEnabled ? '알림을 받고 있어요' : '알림이 꺼져있어요'}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={togglePush}
+            disabled={pushLoading}
+            className={`relative w-14 h-8 rounded-full transition-colors ${
+              pushEnabled ? 'bg-primary' : 'bg-gray-300'
+            } ${pushLoading ? 'opacity-50' : ''}`}
+          >
+            <span
+              className={`absolute top-1 w-6 h-6 bg-white rounded-full transition-transform shadow ${
+                pushEnabled ? 'left-7' : 'left-1'
+              }`}
+            />
+          </button>
+        </div>
+      </Card>
 
       {/* Today's Nagging */}
       {todayNagging && (
@@ -171,7 +278,7 @@ export default function DashboardPage() {
                             </div>
                           )}
                         </div>
-                        {settings && !isGenerating && (
+                        {settings && generatingGoalId !== goal.id && (
                           <button
                             onClick={(e) => {
                               e.preventDefault();
@@ -182,7 +289,7 @@ export default function DashboardPage() {
                             테스트
                           </button>
                         )}
-                        {settings && isGenerating && (
+                        {settings && generatingGoalId === goal.id && (
                           <span className="text-sm text-muted">생성중...</span>
                         )}
                       </div>

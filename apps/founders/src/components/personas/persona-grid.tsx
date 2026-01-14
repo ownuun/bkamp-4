@@ -26,7 +26,7 @@ export function PersonaGrid() {
     try {
       // Create a new chat session
       const { data: session, error } = await supabase
-        .from('chat_sessions')
+        .from('founders_sessions')
         .insert({
           user_id: user.id,
           persona_id: personaId,

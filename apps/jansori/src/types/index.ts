@@ -1,6 +1,6 @@
 // Database Types for Jansori
 
-export type ToneType = 'friend' | 'mom' | 'teacher' | 'coach' | 'tsundere';
+export type ToneType = 'friend' | 'mom' | 'teacher' | 'coach' | 'tsundere' | 'cold';
 export type FrequencyType = 'daily' | 'weekdays' | 'weekends' | 'custom';
 export type CategoryType = 'study' | 'exercise' | 'habit' | 'self_dev' | 'etc';
 export type DeliveryStatus = 'sent' | 'delivered' | 'failed';
@@ -68,7 +68,7 @@ export interface PushSubscription {
 // API Request/Response Types
 export interface CreateGoalRequest {
   title: string;
-  description?: string;
+  situation?: string;
   category: CategoryType;
 }
 
@@ -106,6 +106,13 @@ export interface ToneInfo {
 }
 
 export const TONE_INFO: Record<ToneType, ToneInfo> = {
+  cold: {
+    id: 'cold',
+    name: '냉정한',
+    emoji: '🧊',
+    description: '듣기 싫은 진실을 직설적으로 말하는 톤',
+    example: '핑계 그만 대. 안 하고 있잖아. 그게 현실이야.',
+  },
   friend: {
     id: 'friend',
     name: '친구',

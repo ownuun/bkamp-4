@@ -50,9 +50,7 @@ export default function MainLayout({
       <header className="border-b-2 border-black bg-surface">
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <span className="text-2xl">
-              {String.fromCodePoint(0x1f5e3, 0xfe0f)}
-            </span>
+            <img src="/logo.png" alt="Jansori" className="h-8 w-8" />
             <span className="font-bold text-xl">Jansori</span>
           </Link>
           <button

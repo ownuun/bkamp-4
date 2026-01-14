@@ -29,7 +29,7 @@ export default function ChatPage() {
 
       // Fetch session
       const { data: sessionData, error: sessionError } = await supabase
-        .from('chat_sessions')
+        .from('founders_sessions')
         .select('*')
         .eq('id', sessionId)
         .eq('user_id', user.id)
@@ -50,7 +50,7 @@ export default function ChatPage() {
 
       // Fetch messages
       const { data: messagesData } = await supabase
-        .from('messages')
+        .from('founders_messages')
         .select('*')
         .eq('session_id', sessionId)
         .order('created_at', { ascending: true });

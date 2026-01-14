@@ -40,7 +40,7 @@ export async function POST(request: Request) {
     yesterday.setDate(yesterday.getDate() - 1);
 
     const { data: jobs, error: jobsError } = await supabase
-      .from('job_postings')
+      .from('jobhunt_postings')
       .select('*')
       .gte('created_at', yesterday.toISOString())
       .order('created_at', { ascending: false })
@@ -73,7 +73,7 @@ export async function POST(request: Request) {
         try {
           // Check if match already exists
           const { data: existingMatch } = await supabase
-            .from('job_matches')
+            .from('jobhunt_matches')
             .select('id')
             .eq('user_id', user.id)
             .eq('job_id', job.id)
@@ -100,7 +100,7 @@ export async function POST(request: Request) {
 
           // Save match
           const { error: matchError } = await supabase
-            .from('job_matches')
+            .from('jobhunt_matches')
             .insert({
               user_id: user.id,
               job_id: job.id,
@@ -144,7 +144,7 @@ export async function POST(request: Request) {
           // Mark as notified
           for (const { job } of highFitJobs) {
             await supabase
-              .from('job_matches')
+              .from('jobhunt_matches')
               .update({ notified_at: new Date().toISOString() })
               .eq('user_id', user.id)
               .eq('job_id', job.id);

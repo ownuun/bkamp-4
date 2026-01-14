@@ -58,7 +58,7 @@ export async function createOrder(formData: FormData): Promise<{
     const totalPrice = basePrice + giftPackagePrice;
 
     // 3. 주문 데이터 저장
-    const { error: insertError } = await supabase.from('orders').insert({
+    const { error: insertError } = await supabase.from('flipbook_orders').insert({
       order_number: orderNumber,
       video_url: filePath,
       video_filename: videoFile.name,
@@ -103,7 +103,7 @@ export async function getOrderByNumber(orderNumber: string): Promise<{
     const supabase = await createClient();
 
     const { data, error } = await supabase
-      .from('orders')
+      .from('flipbook_orders')
       .select('*')
       .eq('order_number', orderNumber.toUpperCase())
       .single();
@@ -129,7 +129,7 @@ export async function getOrders(filters?: OrderFilters): Promise<{
     const supabase = await createClient();
 
     let query = supabase
-      .from('orders')
+      .from('flipbook_orders')
       .select('*')
       .order('created_at', { ascending: false });
 
@@ -174,7 +174,7 @@ export async function updateOrderStatus(
     }
 
     const { error } = await supabase
-      .from('orders')
+      .from('flipbook_orders')
       .update(updateData)
       .eq('id', orderId);
 
@@ -203,7 +203,7 @@ export async function updateTrackingNumber(
     const supabase = await createClient();
 
     const { error } = await supabase
-      .from('orders')
+      .from('flipbook_orders')
       .update({
         courier,
         tracking_number: trackingNumber,
@@ -233,7 +233,7 @@ export async function getOrderById(orderId: string): Promise<{
     const supabase = await createClient();
 
     const { data, error } = await supabase
-      .from('orders')
+      .from('flipbook_orders')
       .select('*')
       .eq('id', orderId)
       .single();

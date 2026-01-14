@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
 
     // Get previous messages for context (last 10 messages)
     const { data: previousMessages } = await supabase
-      .from('messages')
+      .from('founders_messages')
       .select('role, content')
       .eq('session_id', sessionId)
       .order('created_at', { ascending: true })
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     ];
 
     // Save user message
-    await supabase.from('messages').insert({
+    await supabase.from('founders_messages').insert({
       session_id: sessionId,
       role: 'user',
       content: message,
@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
 
         // Save assistant message and deduct credit
         await Promise.all([
-          supabase.from('messages').insert({
+          supabase.from('founders_messages').insert({
             session_id: sessionId,
             role: 'assistant',
             content: fullResponse,
@@ -100,14 +100,14 @@ export async function POST(request: NextRequest) {
             .from('profiles')
             .update({ credits: profile.credits - 1 })
             .eq('id', user.id),
-          supabase.from('credit_transactions').insert({
+          supabase.from('founders_credit_transactions').insert({
             user_id: user.id,
             amount: -1,
             type: 'usage',
             description: '대화 1회 사용',
           }),
           supabase
-            .from('chat_sessions')
+            .from('founders_sessions')
             .update({ updated_at: new Date().toISOString() })
             .eq('id', sessionId),
         ]);

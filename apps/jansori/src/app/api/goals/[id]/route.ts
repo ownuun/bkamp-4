@@ -18,11 +18,11 @@ export async function GET(
   }
 
   const { data: goal, error } = await supabase
-    .from('goals')
+    .from('jansori_goals')
     .select(
       `
       *,
-      nagging_settings (*)
+      jansori_settings (*)
     `
     )
     .eq('id', id)
@@ -62,13 +62,21 @@ export async function PATCH(
     );
   }
 
+  if (body.situation && body.situation.length > 5000) {
+    return NextResponse.json(
+      { error: 'Situation must be 5000 characters or less' },
+      { status: 400 }
+    );
+  }
+
   const { data: goal, error } = await supabase
-    .from('goals')
+    .from('jansori_goals')
     .update({
       ...(body.title && { title: body.title }),
       ...(body.description !== undefined && { description: body.description }),
       ...(body.category && { category: body.category }),
       ...(body.is_active !== undefined && { is_active: body.is_active }),
+      ...(body.situation !== undefined && { situation: body.situation }),
     })
     .eq('id', id)
     .eq('user_id', user.id)
@@ -99,7 +107,7 @@ export async function DELETE(
   }
 
   const { error } = await supabase
-    .from('goals')
+    .from('jansori_goals')
     .delete()
     .eq('id', id)
     .eq('user_id', user.id);

@@ -10,6 +10,7 @@ import {
   TONE_INFO,
   CATEGORY_INFO,
 } from '@/types';
+import { subscribeToPush } from '@/lib/push';
 
 type OnboardingStep = 1 | 2 | 3 | 4 | 5;
 
@@ -17,6 +18,7 @@ interface OnboardingData {
   nickname: string;
   goalTitle: string;
   goalCategory: CategoryType;
+  situation: string;
   tone: ToneType;
   timeSlots: string[];
 }
@@ -30,8 +32,9 @@ export default function OnboardingPage() {
     nickname: '',
     goalTitle: '',
     goalCategory: 'etc',
-    tone: 'friend',
-    timeSlots: ['09:00'],
+    situation: '',
+    tone: 'cold',
+    timeSlots: [],
   });
 
   useEffect(() => {
@@ -41,13 +44,22 @@ export default function OnboardingPage() {
         router.push('/login');
         return;
       }
+
+      // Check profiles for nickname
       const { data: profile } = await supabase
         .from('profiles')
-        .select('nickname, onboarding_completed')
+        .select('nickname')
         .eq('id', user.id)
         .single();
 
-      if (profile?.onboarding_completed) {
+      // Check jansori_profiles for onboarding status
+      const { data: jansoriProfile } = await supabase
+        .from('jansori_profiles')
+        .select('onboarding_completed')
+        .eq('id', user.id)
+        .single();
+
+      if (jansoriProfile?.onboarding_completed) {
         router.push('/dashboard');
         return;
       }
@@ -73,27 +85,34 @@ export default function OnboardingPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
+      // Update nickname in profiles
       await supabase
         .from('profiles')
-        .update({
-          nickname: data.nickname,
-          onboarding_completed: true,
-        })
+        .update({ nickname: data.nickname })
         .eq('id', user.id);
 
+      // Upsert jansori_profiles with onboarding_completed
+      await supabase
+        .from('jansori_profiles')
+        .upsert({
+          id: user.id,
+          onboarding_completed: true,
+        });
+
       const { data: goal, error: goalError } = await supabase
-        .from('goals')
+        .from('jansori_goals')
         .insert({
           user_id: user.id,
           title: data.goalTitle,
           category: data.goalCategory,
+          situation: data.situation || null,
         })
         .select()
         .single();
 
       if (goalError) throw goalError;
 
-      await supabase.from('nagging_settings').insert({
+      await supabase.from('jansori_settings').insert({
         goal_id: goal.id,
         user_id: user.id,
         tone: data.tone,
@@ -112,15 +131,34 @@ export default function OnboardingPage() {
   };
 
   const handlePushPermission = async () => {
-    if ('Notification' in window) {
-      await Notification.requestPermission();
-    }
+    await subscribeToPush();
     handleComplete();
   };
 
   return (
     <main className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
+        {/* Back Button */}
+        <button
+          onClick={() => router.back()}
+          className="flex items-center gap-2 text-muted hover:text-foreground mb-4 transition-colors"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+          뒤로가기
+        </button>
+
         {/* Progress */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-2">
@@ -170,7 +208,7 @@ export default function OnboardingPage() {
                   onChange={(value) => setData({ ...data, goalTitle: value })}
                 />
               </div>
-              <div className="mb-6">
+              <div className="mb-4">
                 <p className="text-sm text-muted mb-2">카테고리</p>
                 <div className="flex flex-wrap gap-2">
                   {Object.values(CATEGORY_INFO).map((cat) => (
@@ -188,12 +226,27 @@ export default function OnboardingPage() {
                   ))}
                 </div>
               </div>
-              <div className="flex gap-3">
-                <div onClick={prevStep} className="flex-1">
+              <div className="mb-6">
+                <p className="text-sm font-bold mb-2">내 상황</p>
+                <p className="text-sm text-muted mb-2">
+                  현재 상황을 적어두면 더 맞춤형 잔소리를 받을 수 있어요
+                </p>
+                <textarea
+                  value={data.situation}
+                  onChange={(e) => setData({ ...data, situation: e.target.value.slice(0, 5000) })}
+                  placeholder="예: 요즘 야근이 많아서 운동할 시간이 없어요. 주말에라도 꼭 하고 싶은데..."
+                  className="w-full p-3 rounded-lg border-2 border-black min-h-[100px] resize-none"
+                />
+                <p className="text-xs text-muted mt-1 text-right">
+                  {data.situation.length}/5000자
+                </p>
+              </div>
+              <div className="flex justify-between">
+                <div onClick={prevStep}>
                   <Button>이전</Button>
                 </div>
                 {data.goalTitle.trim() && (
-                  <div onClick={nextStep} className="flex-1">
+                  <div onClick={nextStep}>
                     <Button>다음</Button>
                   </div>
                 )}
@@ -237,11 +290,11 @@ export default function OnboardingPage() {
                   </button>
                 ))}
               </div>
-              <div className="flex gap-3">
-                <div onClick={prevStep} className="flex-1">
+              <div className="flex justify-between">
+                <div onClick={prevStep}>
                   <Button>이전</Button>
                 </div>
-                <div onClick={nextStep} className="flex-1">
+                <div onClick={nextStep}>
                   <Button>다음</Button>
                 </div>
               </div>
@@ -256,39 +309,61 @@ export default function OnboardingPage() {
               <h2 className="text-2xl font-bold mb-2">
                 언제 잔소리 받고 싶어요?
               </h2>
-              <p className="text-muted mb-6">알림 받을 시간을 선택해주세요</p>
-              <div className="space-y-3 mb-6">
-                {['09:00', '12:00', '18:00', '21:00'].map((time) => (
-                  <button
-                    key={time}
-                    onClick={() => {
-                      const slots = data.timeSlots.includes(time)
-                        ? data.timeSlots.filter((t) => t !== time)
-                        : [...data.timeSlots, time].slice(0, 3);
-                      setData({ ...data, timeSlots: slots });
-                    }}
-                    className={`w-full p-4 rounded-lg border-2 border-black text-left transition-colors ${
-                      data.timeSlots.includes(time)
-                        ? 'bg-primary text-white'
-                        : 'bg-white hover:bg-gray-100'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold">{time}</span>
-                      {data.timeSlots.includes(time) && <span>✓</span>}
-                    </div>
-                  </button>
-                ))}
+              <p className="text-muted mb-6">알림 받을 시간을 설정해주세요</p>
+
+              {/* Time Input */}
+              <div className="flex gap-2 mb-4">
+                <input
+                  type="time"
+                  id="time-input"
+                  className="flex-1 p-3 rounded-lg border-2 border-black"
+                />
+                <button
+                  onClick={() => {
+                    const input = document.getElementById('time-input') as HTMLInputElement;
+                    const time = input?.value;
+                    if (time && !data.timeSlots.includes(time) && data.timeSlots.length < 3) {
+                      setData({ ...data, timeSlots: [...data.timeSlots, time].sort() });
+                      input.value = '';
+                    }
+                  }}
+                  className="px-4 py-2 rounded-lg border-2 border-black bg-primary text-white hover:bg-primary/90"
+                >
+                  추가
+                </button>
               </div>
+
+              {/* Selected Times */}
+              <div className="space-y-2 mb-4">
+                {data.timeSlots.length === 0 ? (
+                  <p className="text-muted text-center py-4">시간을 추가해주세요</p>
+                ) : (
+                  data.timeSlots.map((time) => (
+                    <div
+                      key={time}
+                      className="flex items-center justify-between p-3 rounded-lg border-2 border-black bg-primary text-white"
+                    >
+                      <span className="font-bold">{time}</span>
+                      <button
+                        onClick={() => setData({ ...data, timeSlots: data.timeSlots.filter((t) => t !== time) })}
+                        className="text-white hover:text-gray-200"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+
               <p className="text-sm text-muted mb-4">
-                최대 3개까지 선택할 수 있어요
+                최대 3개까지 추가할 수 있어요 ({data.timeSlots.length}/3)
               </p>
-              <div className="flex gap-3">
-                <div onClick={prevStep} className="flex-1">
+              <div className="flex justify-between">
+                <div onClick={prevStep}>
                   <Button>이전</Button>
                 </div>
                 {data.timeSlots.length > 0 && (
-                  <div onClick={nextStep} className="flex-1">
+                  <div onClick={nextStep}>
                     <Button>다음</Button>
                   </div>
                 )}

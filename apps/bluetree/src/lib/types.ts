@@ -3,6 +3,7 @@ export interface Story {
   nickname: string;
   title: string;
   content: string;
+  password?: string;
   created_at: string;
 }
 
@@ -11,6 +12,7 @@ export interface Comment {
   story_id: string;
   nickname: string;
   content: string;
+  password?: string;
   created_at: string;
 }
 
@@ -29,5 +31,7 @@ export interface WalkParticipant {
   walk_id: string;
   nickname: string;
   contact: string | null;
+  email?: string;
+  password?: string;
   created_at: string;
 }

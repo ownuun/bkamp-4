@@ -19,7 +19,7 @@ export async function GET(
   }
 
   const { data: settings, error } = await supabase
-    .from('nagging_settings')
+    .from('jansori_settings')
     .select('*')
     .eq('goal_id', goalId)
     .eq('user_id', user.id)
@@ -51,7 +51,7 @@ export async function PUT(
   const body: UpdateNaggingSettingsRequest = await request.json();
 
   // Validation
-  const validTones = ['friend', 'mom', 'teacher', 'coach', 'tsundere'];
+  const validTones = ['cold', 'friend', 'mom', 'teacher', 'coach', 'tsundere'];
   if (!validTones.includes(body.tone)) {
     return NextResponse.json({ error: 'Invalid tone' }, { status: 400 });
   }
@@ -77,7 +77,7 @@ export async function PUT(
 
   // 기존 설정 확인
   const { data: existing } = await supabase
-    .from('nagging_settings')
+    .from('jansori_settings')
     .select('id')
     .eq('goal_id', goalId)
     .eq('user_id', user.id)
@@ -89,7 +89,7 @@ export async function PUT(
   if (existing) {
     // 업데이트
     const result = await supabase
-      .from('nagging_settings')
+      .from('jansori_settings')
       .update({
         tone: body.tone,
         frequency: body.frequency,
@@ -105,7 +105,7 @@ export async function PUT(
   } else {
     // 새로 생성
     const result = await supabase
-      .from('nagging_settings')
+      .from('jansori_settings')
       .insert({
         goal_id: goalId,
         user_id: user.id,

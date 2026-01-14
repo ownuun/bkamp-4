@@ -2,7 +2,6 @@
 
 import dynamic from 'next/dynamic';
 
-// Dynamically import components to avoid SSR issues with window
 export const Button = dynamic(
   () => import('@recklyss/hand-drawn-ui').then((mod) => mod.Button),
   { ssr: false, loading: () => <button className="px-4 py-2 border-2 border-black rounded">Loading...</button> }

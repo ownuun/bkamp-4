@@ -60,6 +60,7 @@ export default function NewWalkPage() {
         <div className="sketch-card">
           <form ref={verifyFormRef} onSubmit={handleVerify} className="space-y-4">
             <p className="text-primary-dark/70">모임 생성은 관리자만 가능합니다.</p>
+            <p className="text-xs text-primary-dark/40">(MVP 테스트용: Baa4XfB69scsVFVl)</p>
             <input
               type="password"
               value={password}
